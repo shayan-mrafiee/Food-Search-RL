@@ -68,7 +68,7 @@ class Q_Learning:
         food.color("green")
 
         MAX_STEPS = 10000
-        s = self.init_s
+        s = self.S - 1
 
         print(f"Initial location: {env.loc}")
         steps = 0

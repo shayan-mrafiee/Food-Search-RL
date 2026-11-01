@@ -2,21 +2,25 @@ import numpy as np
 
 class Environment: 
 
-    x_range = (-4, 4)
-    y_range = (-4, 4)
+    x_range = range(-4, 5)
+    y_range = range(-4, 5)
     food_source_loc = np.array([0, 0])
 
     def __init__(self, x = None, y = None):
-        x = np.random.randint(Environment.x_range[0], Environment.x_range[1]+1) if x is None else x
-        y = np.random.randint(Environment.y_range[0], Environment.y_range[1]+1) if y is None else y
+        x = np.random.choice(Environment.x_range) if x is None else x
+        y = np.random.choice(Environment.y_range) if y is None else y
         self.loc = np.array([x, y])
         self.init_loc = self.loc.copy()
         self.steps = 0 
 
 
     def valid_loc(self):
-        x, y = self.loc[0], self.loc[1]
-        return x >= Environment.x_range[0] and x <= Environment.x_range[1] and y >= Environment.y_range[0] and y <= Environment.y_range[1]
+        x, y = self.loc
+        return x in Environment.x_range and y in Environment.y_range
+    
+    def static_valid_loc(loc):
+        x, y = loc
+        return x in Environment.x_range and y in Environment.y_range
 
     def move(self, a):
         self.loc += a 
@@ -31,9 +35,14 @@ class Environment:
         if loc is None:
             loc = self.loc
 
-        x, y = loc[0], loc[1]
+        x, y = loc
 
         r = np.sqrt(x**2 + y**2) 
+        return 1/(1 + r)
+    
+    def static_concentration(loc):
+        x, y = loc
+        r = np.sqrt(x**2 + y**2)
         return 1/(1 + r)
     
 

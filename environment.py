@@ -10,6 +10,11 @@ class Environment:
         x = np.random.choice(Environment.x_range) if x is None else x
         y = np.random.choice(Environment.y_range) if y is None else y
         self.loc = np.array([x, y])
+        while np.array_equal(self.loc, Environment.food_source_loc):
+            x = np.random.choice(Environment.x_range)
+            y = np.random.choice(Environment.y_range)
+            self.loc = np.array([x, y])
+        
         self.init_loc = self.loc.copy()
         self.steps = 0 
 

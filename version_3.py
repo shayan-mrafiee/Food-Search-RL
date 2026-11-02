@@ -2,6 +2,7 @@ from src.Q_learning import Q_Learning
 from environment import Environment
 from scipy.optimize import minimize
 import numpy as np
+from random import sample
 
 class AgentTrainer3:
 
@@ -15,10 +16,14 @@ class AgentTrainer3:
         ]
         self.A = len(self.actions) # number of actions 
 
+        self.all_locs = []
+
         self.states = {} # tuple (c_cur, c_prev, a_prev) as key, state number as value 
         for x in Environment.x_range:
             for y in Environment.y_range:
                 loc = np.array([x, y])
+                self.all_locs.append(loc)
+
                 c_cur = Environment.static_concentration((x, y))
                 if (c_cur, None, None) not in self.states:
                     self.states[(c_cur, None, None)] = len(self.states)
@@ -69,41 +74,41 @@ class AgentTrainer3:
         return self.t + (self.c if c_cur > c_prev else self.d)
     
     
-    def get_dif_sum(self, params):
-        self.alpha, self.gamma, self.epsilon, self.T, self.t, self.c, self.d = params 
-        agent = Q_Learning(self.S, self.actions, self.reward, self.get_init_state, self.get_next_state, self.alpha, self.gamma, self.epsilon)
+    def get_excess_avg(self, params):
+        self.set_parameters(params)
+
+        agent = self.create_agent()
         agent.learn(100)
 
         N = 100
         dif_sum = 0
 
-        for x in Environment.x_range:
-            for y in Environment.y_range:
-                steps_sum = 0 
-                for i in range(N):
-                    agent_steps = agent.search_source(Environment(x, y), learn=False, explore=False)
-                    steps_sum += len(agent_steps)-1
+        locs_sample = sample(self.all_locs, counts=[N] * len(self.all_locs), k=len(self.all_locs)*N)
 
-                    if not np.array_equal(Environment.food_source_loc, agent_steps[-1]):
-                        steps_sum += 1e+09
-                    
+        for x, y in locs_sample:
+            agent_steps = agent.search_source(Environment(x, y), learn=True, explore=False)
+            steps = len(agent_steps)-1
 
-                steps_avg = steps_sum / N
-                dif_sum += steps_avg - (np.abs(x) + np.abs(y))
+            if not np.array_equal(Environment.food_source_loc, agent_steps[-1]):
+                steps += 1000
+                
 
-        return dif_sum
+            dif_sum += steps - (np.abs(x) + np.abs(y))
+
+        return dif_sum / len(locs_sample)
     
     
-    def auto_tune(self):
-        x0 = [
-            1.0, # alpha 
-            0.2, # gamma 
-            0.15, # epsilon 
-            1000, # T
-            -1, # t
-            0, # c
-            -9 # d
-        ]
+    def auto_tune(self, x0 = None):
+        if x0 is None:
+            x0 = [
+                1.0, # alpha 
+                0.2, # gamma 
+                0.15, # epsilon 
+                1000, # T
+                -1, # t
+                0, # c
+                -9 # d
+            ]
 
         bounds = [
             (0.0, 1.0), # alpha
@@ -115,16 +120,26 @@ class AgentTrainer3:
             (None, None) # d
         ]
 
-        result = minimize(self.get_dif_sum, x0=x0, bounds=bounds, method='Nelder-Mead')
+        result = minimize(
+            self.get_excess_avg, 
+            x0=x0, 
+            bounds=bounds, 
+            method='Nelder-Mead',
+            options={
+                "adaptive" : True,
+                "xatol" : 0.01,
+                "fatol" : 0.1
+            }
+        )
         self.alpha, self.gamma, self.epsilon, self.T, self.t, self.c, self.d = result.x
-        
+
         print("Success:", result.success)
         print(f"Optimal parameters: {result.x}")
         print(f"Min Value of Function: {result.fun}")
         print("Message:", result.message)
         print("Iterations:", result.nit)
         print("Function evaluations:", result.nfev)
-        print("Initial objective:", self.get_dif_sum(x0))
+        print("Initial objective:", self.get_excess_avg(x0))
         print("Final objective:", result.fun)
 
 

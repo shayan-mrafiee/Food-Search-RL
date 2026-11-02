@@ -7,17 +7,17 @@ from turtle import Turtle
 import time
 import numpy as np
 
-# locs = list of 
-def visualize(agents_steps, colors, scale=75):
-    N = len(colors) # number of agents 
-
-    for i in range(N):
+def print_results(agents_steps):
+    for i, steps in enumerate(agents_steps):
         print(f"Agent {i+1}:")
-        print(f"Initial location: {agents_steps[i][0]}")
-        print(f"Reached source: {np.array_equal(np.array([0, 0]), agents_steps[i][-1])}")
-        print(f"Steps: {len(agents_steps[i])}")
+        print(f"Initial location: {steps[0]}")
+        print(f"Reached source: {np.array_equal(np.array([0, 0]), steps[-1])}")
+        print(f"Steps: {len(steps)-1}")
         print()
 
+    
+def visualize(agents_steps, colors, scale=75):
+    N = len(colors) # number of agents 
 
     food_source = Turtle("circle")
     food_source.color("green")
@@ -50,19 +50,38 @@ def visualize(agents_steps, colors, scale=75):
 at2 = AgentTrainer2()
 at3 = AgentTrainer3()
 
-# at3.auto_tune()
+# at3.auto_tune([0.96, 0.19, 0.15, 1001.29, -1.01, -9.43e-05, -8.97])
+# print()
 """
 Auto Tune results: 
-Success: False
-Optimal parameters: [ 9.5e-01  2.0e-01  1.5e-01  1.0e+03 -1.0e+00  0.0e+00 -9.0e+00]
-Min Value of Function: 160.70000000000005
+Success: True
+Optimal parameters: [ 9.77751848e-01  1.90289042e-01  1.50162023e-01  1.02678976e+03
+ -1.02492501e+00 -9.53983561e-05 -8.73070488e+00]
+Min Value of Function: 2.2012345679012344
+Message: Optimization terminated successfully.
+Iterations: 239
+Function evaluations: 666
+Initial objective: 2.3519753086419755
+Final objective: 2.2012345679012344
 """
+
+
+at3.set_parameters([9.77751848e-01, 1.90289042e-01, 1.50162023e-01, 1.02678976e+03, -1.02492501e+00, -9.53983561e-05, -8.73070488e+00])
 a3 = at3.create_agent()
 a2 = at2.create_agent()
+
+print("Version 3:")
+print(at3.get_excess_avg([9.77751848e-01, 1.90289042e-01, 1.50162023e-01, 1.02678976e+03, -1.02492501e+00, -9.53983561e-05, -8.73070488e+00]))
+print("Version 2:")
+print(at3.get_excess_avg([1, 0.2, 0.15, 1000, -1, 0, -9]))
+print()
 
 a3.learn(100)
 a2.learn(100)
 
 x = np.random.choice(Environment.x_range)
 y = np.random.choice(Environment.y_range)
-visualize([a3.search_source(Environment(x, y), learn=False, explore=False), a2.search_source(Environment(x, y), learn=False, explore=False)], colors=["blue", "red"])
+
+agents_steps = [a3.search_source(Environment(x, y), learn=True, explore=False), a2.search_source(Environment(x, y), learn=True, explore=False)]
+print_results(agents_steps)
+visualize(agents_steps, colors=["blue", "red"])

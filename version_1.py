@@ -33,8 +33,11 @@ def reward(s, env : Environment):
     # -1 if concentration increased, otherwise -2
     return -10 if s // A == 0 else -1
 
-agent = Q_Learning(S, actions, reward, get_init_state, get_next_state, alpha, gamma, exploration_rate)
-env = Environment(-3, 0)
-agent.learn(1000)
-env.reset()
-agent.search_source(env, learn=True, explore=False)
+def get_agent():
+    return Q_Learning(S, actions, reward, get_init_state, get_next_state, alpha, gamma, exploration_rate)
+
+# agent = Q_Learning(S, actions, reward, get_init_state, get_next_state, alpha, gamma, exploration_rate)
+# env = Environment(-3, 0)
+# agent.learn(1000)
+# env.reset()
+# agent.search_source(env, learn=True, explore=False)

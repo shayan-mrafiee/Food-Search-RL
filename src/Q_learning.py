@@ -20,8 +20,8 @@ class Q_Learning:
 
 
     # Q learning: 
-    def learn(self, episodes = 100000, env = None):
-        MAX_STEPS = 10000
+    def learn(self, episodes = 100000, env = None, MAX_STEPS = 100):
+
         use_diff_env = (env is None)
 
         for k in range(episodes):
@@ -59,28 +59,13 @@ class Q_Learning:
             # print(f"Steps: {env.steps}")
             # print(f"Reached source: {env.found_target()}\n")
 
-    def search_source(self, env, learn=True, explore=True, visualize=False):
-        if visualize:
-            t = Turtle("turtle")
-            t.penup()
-            t.color("blue")
-            t.speed(0)
-
-            food = Turtle("circle")
-            food.color("green")
-
-            time.sleep(5)
-
-        MAX_STEPS = 10000
+    def search_source(self, env : Environment, learn=True, explore=True, MAX_STEPS = 100):
+        locs = []
         s = self.get_init_state(env)
 
-        print(f"Initial location: {env.loc}")
         steps = 0
         while not env.found_target() and steps < MAX_STEPS:
-            if visualize:
-                t.goto(env.loc * 75)
-                t.speed(1)
-                time.sleep(1)
+            locs.append(env.loc.copy())
 
             if explore and np.random.random() <= self.epsilon:
                 a = np.random.randint(0, self.A)
@@ -101,8 +86,6 @@ class Q_Learning:
             s = next_s
             steps += 1
         
-        if visualize:
-            t.goto(env.loc * 75)
-            turtle.exitonclick()
-        print(f"Steps: {env.steps}")
-        print(f"Reached source: {env.found_target()}\n")
+        locs.append(env.loc)
+
+        return locs

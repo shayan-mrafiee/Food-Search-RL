@@ -1,4 +1,4 @@
-from src.Q_learning import Q_Learning
+from Q_learning import Q_Learning
 from environment import Environment
 from scipy.optimize import minimize
 import numpy as np

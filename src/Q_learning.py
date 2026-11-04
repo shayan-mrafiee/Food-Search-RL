@@ -1,8 +1,5 @@
 import numpy as np 
 from environment import Environment 
-import turtle
-from turtle import Turtle
-import time
 
 class Q_Learning:
 
@@ -17,7 +14,6 @@ class Q_Learning:
         self.gamma = gamma # discount factor 
         self.epsilon = epsilon # exploration rate 
         self.Q_table = np.zeros((S, self.A))
-
 
     # Q learning: 
     def learn(self, episodes = 100000, env = None, MAX_STEPS = 100):

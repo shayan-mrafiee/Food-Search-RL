@@ -1,4 +1,4 @@
-from src.Q_learning import Q_Learning
+from Q_learning import Q_Learning
 from environment import Environment
 import numpy as np
 
@@ -30,8 +30,8 @@ def get_init_state(env : Environment):
 def reward(s, env : Environment):
     if env.found_target():
         return 1000
-    # -1 if concentration increased, otherwise -2
-    return -10 if s // A == 0 else -1
+    # -1 if concentration increased, otherwise -10
+    return -100 if s // A == 0 else -1
 
 def get_agent():
     return Q_Learning(S, actions, reward, get_init_state, get_next_state, alpha, gamma, exploration_rate)

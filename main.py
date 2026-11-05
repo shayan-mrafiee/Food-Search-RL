@@ -1,8 +1,8 @@
-from Q_learning import Q_Learning
-from version_1 import get_agent
-from version_2 import AgentTrainer2
-from version_3 import AgentTrainer3
-from environment import Environment
+from src.Q_learning import Q_Learning
+from src.version_1 import get_agent
+from src.version_2 import AgentTrainer2
+from src.version_3 import AgentTrainer3
+from src.environment import Environment
 import turtle
 from turtle import Turtle
 import time
@@ -62,10 +62,9 @@ def get_excess_avg(agent):
     locs_sample = sample(at3.all_locs, counts=[N] * len(at3.all_locs), k=len(at3.all_locs)*N)
 
     for i, (x, y) in enumerate(locs_sample):
-        agent_steps = agent.search_source(Environment(x, y), learn=True, explore=False, MAX_STEPS=100)
-        steps = len(agent_steps)-1
+        init_loc, steps, found = agent.search_source(Environment(x, y), learn=True, explore=False, MAX_STEPS=100)
 
-        if not np.array_equal(Environment.food_source_loc, agent_steps[-1]):
+        if not found:
             failed_attempts += 1
 
         dif_sum += steps - (np.abs(x) + np.abs(y))
@@ -73,28 +72,35 @@ def get_excess_avg(agent):
     return (dif_sum / len(locs_sample), failed_attempts / len(locs_sample))
 
 
-at3.set_parameters([9.77751848e-01, 1.90289042e-01, 1.50162023e-01, 1.02678976e+03, -1.02492501e+00, -9.53983561e-05, -8.73070488e+00])
+# at3.set_parameters([9.77751848e-01, 1.90289042e-01, 1.50162023e-01, 1.02678976e+03, -1.02492501e+00, -9.53983561e-05, -8.73070488e+00])
+at3.set_parameters([0.014,0.293,0.005,571.76,314.87,447.04,-617.08])
 
-N = 100
-f1 = open("data/version_1.csv", "w")
-# f2 = open("data/version_2.csv", "w")
-# f3 = open("data/version_3.csv", "w")
+# N = 100
+# # f1 = open("data/version_1.csv", "w")
+# # f2 = open("data/version_2.csv", "w")
+# # f3 = open("data/version_3.csv", "w")
+# f4 = open("data/version_4.csv", "w")
 
-print("Progress: 0%", end='')
-for i in range(N):
-    a1 = get_agent()
-    # a2 = at2.create_agent()
-    # a3 = at3.create_agent()
-    excess, fail = get_excess_avg(a1)
-    f1.write(f"{excess}, {fail}\n")
-    # f2.write(f"{get_excess_avg(a2)}\n")
-    # f3.write(f"{get_excess_avg(a3)}\n")
+# print("\rProgress: 0%", end='')
+# for i in range(N):
+#     # a1 = get_agent()
+#     # a2 = at2.create_agent()
+#     # a3 = at3.create_agent()
+#     a4 = at3.create_agent()
+#     # excess, fail = get_excess_avg(a1)
+#     excess, fail = get_excess_avg(a4)
+#     # f1.write(f"{excess}, {fail}\n")
+#     # f2.write(f"{get_excess_avg(a2)}\n")
+#     # f3.write(f"{get_excess_avg(a3)}\n")
+#     f4.write(f"{excess},{fail}\n")
 
-    print(f"\rProgress: {i+1}%", end='')
+#     print(f"\rProgress: {(i+1) * 100 // N}%", end='')
 
-f1.close()
-# f2.close()
-# f3.close()
+# print("\rProgress: 100%")
+# # # f1.close()
+# # # f2.close()
+# # # f3.close()
+# f4.close()
 
 # at3.auto_tune([0.96, 0.19, 0.15, 1001.29, -1.01, -9.43e-05, -8.97])
 # print()
@@ -124,6 +130,9 @@ Final objective: 2.2012345679012344
 # x = np.random.choice(Environment.x_range)
 # y = np.random.choice(Environment.y_range)
 
+a3 = at3.create_agent()
+a3.learn(100)
+agent_steps = [a3.search_source(Environment(), learn=True, explore=False, return_steps_list=True)]
 # agents_steps = [a3.search_source(Environment(x, y), learn=True, explore=False), a2.search_source(Environment(x, y), learn=True, explore=False)]
-# print_results(agents_steps)
-# visualize(agents_steps, colors=["blue", "red"])
+print_results(agent_steps)
+visualize(agent_steps, colors=["blue"])

@@ -1,5 +1,5 @@
 import numpy as np 
-from environment import Environment 
+from src.environment import Environment 
 
 class Q_Learning:
 
@@ -14,6 +14,9 @@ class Q_Learning:
         self.gamma = gamma # discount factor 
         self.epsilon = epsilon # exploration rate 
         self.Q_table = np.zeros((S, self.A))
+
+    def __repr__(self):
+        return f"alpha = {self.alpha}; gamma = {self.gamma}; epsilon = {self.epsilon}"
 
     # Q learning: 
     def learn(self, episodes = 100000, env = None, MAX_STEPS = 100):
@@ -55,13 +58,15 @@ class Q_Learning:
             # print(f"Steps: {env.steps}")
             # print(f"Reached source: {env.found_target()}\n")
 
-    def search_source(self, env : Environment, learn=True, explore=True, MAX_STEPS = 100):
+    def search_source(self, env : Environment, learn=True, explore=True, MAX_STEPS = 100, return_steps_list = False):
         locs = []
+        init_loc = env.loc.copy()
         s = self.get_init_state(env)
 
         steps = 0
         while not env.found_target() and steps < MAX_STEPS:
-            locs.append(env.loc.copy())
+            if return_steps_list:
+                locs.append(env.loc.copy())
 
             if explore and np.random.random() <= self.epsilon:
                 a = np.random.randint(0, self.A)
@@ -82,6 +87,8 @@ class Q_Learning:
             s = next_s
             steps += 1
         
-        locs.append(env.loc)
+        if return_steps_list:
+            locs.append(env.loc)
 
-        return locs
+        # if return_steps_list is false, it returns a tuple with (initial location, steps, whether it found target)
+        return locs if return_steps_list else (init_loc, steps, env.found_target())

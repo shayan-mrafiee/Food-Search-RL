@@ -1,5 +1,5 @@
-from Q_learning import Q_Learning
-from environment import Environment
+from src.Q_learning import Q_Learning
+from src.environment import Environment
 import numpy as np
 
 class AgentTrainer2:

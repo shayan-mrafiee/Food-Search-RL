@@ -1,5 +1,5 @@
-from Q_learning import Q_Learning
-from environment import Environment
+from src.Q_learning import Q_Learning
+from src.environment import Environment
 from scipy.optimize import minimize
 import numpy as np
 from random import sample
@@ -49,6 +49,7 @@ class AgentTrainer3:
 
     def set_parameters(self, params):
         self.alpha, self.gamma, self.epsilon, self.T, self.t, self.c, self.d = params
+        return self
 
 
     def get_next_state(self, a : int, env : Environment):

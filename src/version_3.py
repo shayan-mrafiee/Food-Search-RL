@@ -3,6 +3,7 @@ from src.environment import Environment
 from scipy.optimize import minimize
 import numpy as np
 from random import sample
+import time
 
 class AgentTrainer3:
 
@@ -87,12 +88,10 @@ class AgentTrainer3:
         locs_sample = sample(self.all_locs, counts=[N] * len(self.all_locs), k=len(self.all_locs)*N)
 
         for x, y in locs_sample:
-            agent_steps = agent.search_source(Environment(x, y), learn=True, explore=False)
-            steps = len(agent_steps)-1
+            init_loc, steps, found = agent.search_source(Environment(x, y), learn=True, explore=False, return_steps_list=False) 
 
-            if not np.array_equal(Environment.food_source_loc, agent_steps[-1]):
+            if not found:
                 steps += 1000
-                
 
             dif_sum += steps - (np.abs(x) + np.abs(y))
 
@@ -121,6 +120,7 @@ class AgentTrainer3:
             (None, None) # d
         ]
 
+        start_time = time.perf_counter()
         result = minimize(
             self.get_excess_avg, 
             x0=x0, 
@@ -132,6 +132,7 @@ class AgentTrainer3:
                 "fatol" : 0.1
             }
         )
+        end_time = time.perf_counter()
         self.alpha, self.gamma, self.epsilon, self.T, self.t, self.c, self.d = result.x
 
         print("Success:", result.success)
@@ -142,6 +143,7 @@ class AgentTrainer3:
         print("Function evaluations:", result.nfev)
         print("Initial objective:", self.get_excess_avg(x0))
         print("Final objective:", result.fun)
+        print(f"Total duration: {(end_time - start_time):.2f}s")
 
 
     def create_agent(self):

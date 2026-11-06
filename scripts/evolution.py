@@ -3,6 +3,7 @@ from src.Q_learning import Q_Learning
 from src.environment import Environment
 from src.version_3 import AgentTrainer3
 import random 
+import time
 
 # mutation rates for alpha, gamma, epsilon, T, t, c, d
 mutation_rates = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
@@ -61,6 +62,7 @@ offsprings_per = 3
 print("\rProgress: 0%", end='')
 at3 = AgentTrainer3()
 
+start_time = time.perf_counter()
 for k in range(episodes):
     excess_steps = [None] * len(params_list)
 
@@ -86,5 +88,7 @@ for k in range(episodes):
 
     if (k+1) * 100 % episodes == 0:
         print(f"\rProgress: {(k+1) * 100 // episodes}%", end='')
-
+end_time = time.perf_counter()
 print("\rProgress: 100%")
+
+print(f"Total time: {end_time - start_time}")
